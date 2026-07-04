@@ -29,6 +29,9 @@ func Run() error {
 	passEntry := widget.NewPasswordEntry()
 	passEntry.SetPlaceHolder("Password")
 
+	costEntry := widget.NewEntry()
+	costEntry.SetText("10")
+
 	resultLabel := widget.NewLabel("")
 	resultLabel.Selectable = true
 	resultLabel.Wrapping = fyne.TextWrapBreak
@@ -93,7 +96,11 @@ func Run() error {
 	}
 
 	genEntryBtn.OnTapped = func() {
-		line, err := htpasswd.Generate(userEntry.Text, passEntry.Text)
+		cost := htpasswd.DefaultCost
+		if c, err := parseCost(costEntry.Text); err == nil {
+			cost = c
+		}
+		line, err := htpasswd.Generate(userEntry.Text, passEntry.Text, cost)
 		if err != nil {
 			resultLabel.SetText(fmt.Sprintf("Error: %v", err))
 			return
@@ -142,6 +149,7 @@ func Run() error {
 	form := container.New(layout.NewFormLayout(),
 		widget.NewLabel("Username"), userEntry,
 		widget.NewLabel("Password"), passEntry,
+		widget.NewLabel("Bcrypt cost"), costEntry,
 	)
 
 	content := container.NewVBox(
@@ -172,6 +180,18 @@ func parseLength(s string) (int, error) {
 	}
 	if n < 1 {
 		return 0, fmt.Errorf("length must be positive")
+	}
+	return n, nil
+}
+
+func parseCost(s string) (int, error) {
+	var n int
+	_, err := fmt.Sscanf(s, "%d", &n)
+	if err != nil {
+		return 0, err
+	}
+	if n < htpasswd.MinCost || n > htpasswd.MaxCost {
+		return 0, fmt.Errorf("cost must be between %d and %d", htpasswd.MinCost, htpasswd.MaxCost)
 	}
 	return n, nil
 }

@@ -111,7 +111,7 @@ func Run(cfg Config) (Result, error) {
 		return Result{}, errors.New("password is required")
 	}
 
-	line, err := htpasswd.Generate(cfg.User, pwd)
+	line, err := htpasswd.Generate(cfg.User, pwd, cfg.Cost)
 	if err != nil {
 		return Result{}, err
 	}

@@ -109,6 +109,7 @@ func TestRunWithUserAndPassword(t *testing.T) {
 	cfg := Config{
 		User:     "testuser",
 		Password: "testpass",
+		Cost:     10,
 	}
 	res, err := Run(cfg)
 	if err != nil {
@@ -124,12 +125,13 @@ func TestRunWithUserAndPassword(t *testing.T) {
 
 func TestRunRandom(t *testing.T) {
 	cfg := Config{
-		User:   "testuser",
-		Random: true,
-		Length: 16,
-		Lower:  true,
-		Upper:  true,
+		User:    "testuser",
+		Random:  true,
+		Length:  16,
+		Lower:   true,
+		Upper:   true,
 		Numbers: true,
+		Cost:    10,
 	}
 	res, err := Run(cfg)
 	if err != nil {
@@ -167,6 +169,7 @@ func TestRunInvalidUserColon(t *testing.T) {
 	cfg := Config{
 		User:     "user:name",
 		Password: "secret",
+		Cost:     10,
 	}
 	_, err := Run(cfg)
 	if err == nil {
