@@ -1,0 +1,6 @@
+/mkhtpasswd
+/mkhtpasswd.exe
+/dist/
+/screenshots/
+*.tar.gz
+*.zip

@@ -1,0 +1,41 @@
+pipeline:
+  lint:
+    image: golang:1.26
+    commands:
+      - go vet ./...
+
+  test:
+    image: golang:1.26
+    commands:
+      - go test -race -cover ./internal/...
+
+  build:
+    image: golang:1.26
+    environment:
+      CGO_ENABLED: "0"
+    commands:
+      - go build ./cmd/mkhtpasswd
+    when:
+      event: [push, pull_request]
+
+  release-linux:
+    image: golang:1.26
+    commands:
+      - apt-get update && apt-get install -y zip libgl1-mesa-dev xorg-dev
+      - go build -o mkhtpasswd-linux-amd64 ./cmd/mkhtpasswd
+      - tar czf mkhtpasswd-linux-amd64.tar.gz mkhtpasswd-linux-amd64
+    when:
+      event: tag
+
+  release-cross:
+    image: golang:1.26
+    commands:
+      - apt-get update && apt-get install -y zip
+      - GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -o mkhtpasswd-darwin-amd64 ./cmd/mkhtpasswd
+      - GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -o mkhtpasswd-darwin-arm64 ./cmd/mkhtpasswd
+      - GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o mkhtpasswd-windows-amd64.exe ./cmd/mkhtpasswd
+      - tar czf mkhtpasswd-darwin-amd64.tar.gz mkhtpasswd-darwin-amd64
+      - tar czf mkhtpasswd-darwin-arm64.tar.gz mkhtpasswd-darwin-arm64
+      - zip mkhtpasswd-windows-amd64.zip mkhtpasswd-windows-amd64.exe
+    when:
+      event: tag
