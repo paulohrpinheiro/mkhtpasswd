@@ -225,3 +225,13 @@ func TestRunRandomAndStdinMutuallyExclusive(t *testing.T) {
 		t.Fatal("expected error for --random and --password-stdin together")
 	}
 }
+
+func TestParsePasswordStdinFlag(t *testing.T) {
+	cfg, ok := Parse([]string{"--user", "u", "--password-stdin"})
+	if !ok {
+		t.Fatal("expected ok")
+	}
+	if !cfg.PasswordStdin {
+		t.Fatal("expected PasswordStdin true")
+	}
+}

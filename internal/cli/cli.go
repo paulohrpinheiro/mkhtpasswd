@@ -149,5 +149,8 @@ func ShowResult(cfg Config, res Result) {
 	fmt.Println(res.Line)
 	if cfg.Random && cfg.ShowPass {
 		fmt.Fprintln(os.Stderr, "Generated password:", res.Password)
+		if cfg.Symbols {
+			fmt.Fprintln(os.Stderr, "Warning: password contains symbols which may be interpreted by your shell")
+		}
 	}
 }
