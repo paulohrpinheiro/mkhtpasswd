@@ -1,4 +1,4 @@
-pipeline:
+steps:
   lint:
     image: golang:1.26
     commands:
@@ -16,7 +16,7 @@ pipeline:
     commands:
       - go build ./cmd/mkhtpasswd
     when:
-      event: [push, pull_request]
+      - event: [push, pull_request]
 
   release-linux:
     image: golang:1.26
@@ -25,7 +25,7 @@ pipeline:
       - go build -o mkhtpasswd-linux-amd64 ./cmd/mkhtpasswd
       - tar czf mkhtpasswd-linux-amd64.tar.gz mkhtpasswd-linux-amd64
     when:
-      event: tag
+      - event: tag
 
   release-cross:
     image: golang:1.26
@@ -38,4 +38,4 @@ pipeline:
       - tar czf mkhtpasswd-darwin-arm64.tar.gz mkhtpasswd-darwin-arm64
       - zip mkhtpasswd-windows-amd64.zip mkhtpasswd-windows-amd64.exe
     when:
-      event: tag
+      - event: tag
