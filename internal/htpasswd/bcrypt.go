@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/text/unicode/norm"
 )
 
 const (
@@ -22,6 +23,9 @@ var (
 )
 
 func Generate(username, password string, cost int) (string, error) {
+	username = norm.NFC.String(username)
+	password = norm.NFC.String(password)
+
 	if username == "" {
 		return "", ErrUsernameEmpty
 	}

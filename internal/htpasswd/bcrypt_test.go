@@ -3,6 +3,8 @@ package htpasswd
 import (
 	"strings"
 	"testing"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 func TestGenerateSuccess(t *testing.T) {
@@ -151,5 +153,46 @@ func TestGenerateOutputFormat(t *testing.T) {
 	}
 	if len(parts[1]) == 0 {
 		t.Fatal("hash must not be empty")
+	}
+}
+
+func TestGenerateNormalizedUnicodeUsername(t *testing.T) {
+	nfd := "jos\u0065\u0301"
+	nfc := "jos\u00e9"
+
+	line1, err := Generate(nfd, "password", DefaultCost)
+	if err != nil {
+		t.Fatalf("unexpected error for NFD username: %v", err)
+	}
+
+	line2, err := Generate(nfc, "password", DefaultCost)
+	if err != nil {
+		t.Fatalf("unexpected error for NFC username: %v", err)
+	}
+
+	expectedPrefix := "jos\u00e9:"
+	if !strings.HasPrefix(line1, expectedPrefix) {
+		t.Fatalf("NFD username should normalize to NFC, got %q", line1)
+	}
+	if !strings.HasPrefix(line2, expectedPrefix) {
+		t.Fatalf("NFC username should stay NFC, got %q", line2)
+	}
+}
+
+func TestGenerateNormalizedUnicodePassword(t *testing.T) {
+	nfd := "caf\u0065\u0301"
+	nfc := "caf\u00e9"
+
+	line, err := Generate("user", nfd, DefaultCost)
+	if err != nil {
+		t.Fatalf("unexpected error for NFD password: %v", err)
+	}
+
+	parts := strings.SplitN(line, ":", 2)
+	hash := parts[1]
+	realHash := "$2a" + hash[3:]
+
+	if err := bcrypt.CompareHashAndPassword([]byte(realHash), []byte(nfc)); err != nil {
+		t.Fatalf("NFD password should normalize to NFC: %v", err)
 	}
 }
