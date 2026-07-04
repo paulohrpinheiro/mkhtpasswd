@@ -77,6 +77,7 @@ mkhtpasswd --user paulo --random --show-password
 | `--symbols` | Use symbols | false |
 | `--show-password` | Display generated password | false |
 | `--cost` | bcrypt cost | 10 |
+| `--password-stdin` | Read password from stdin | false |
 | `--gui` | Force opening the GUI | false |
 | `--version` | Show version | |
 
@@ -88,6 +89,8 @@ mkhtpasswd --user paulo --random --show-password
 - No telemetry or data collection.
 - No logs containing passwords.
 - Generated passwords are hidden by default in CLI mode.
+- The system clipboard is not cleared after copying; the `.htpasswd` entry may remain in the clipboard until overwritten.
+- Passwords passed via `--password` are visible in the process list (`ps`, `/proc`). Use `--password-stdin` to avoid this.
 
 ## License
 
