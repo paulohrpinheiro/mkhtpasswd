@@ -173,3 +173,16 @@ func TestRunInvalidUserColon(t *testing.T) {
 		t.Fatal("expected error for username with colon")
 	}
 }
+
+func TestRunRandomExceedsMaxLength(t *testing.T) {
+	cfg := Config{
+		User:   "testuser",
+		Random: true,
+		Length: 1000,
+		Lower:  true,
+	}
+	_, err := Run(cfg)
+	if err == nil {
+		t.Fatal("expected error for length exceeding max")
+	}
+}

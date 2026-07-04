@@ -3,6 +3,7 @@ package password
 import (
 	"crypto/rand"
 	"errors"
+	"fmt"
 	"math/big"
 )
 
@@ -16,15 +17,19 @@ type Options struct {
 }
 
 const (
-	lowercase = "abcdefghijklmnopqrstuvwxyz"
-	uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	numbers   = "0123456789"
-	symbols   = "!@#$%^&*()-_=+[]{}|;:,.<>?/~"
+	lowercase         = "abcdefghijklmnopqrstuvwxyz"
+	uppercase         = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	numbers           = "0123456789"
+	symbols           = "!@#$%^&*()-_=+[]{}|;:,.<>?/~"
+	MaxPasswordLength = 256
 )
 
 func GenerateRandomPassword(opts Options) (string, error) {
 	if opts.Length <= 0 {
 		return "", errors.New("password length must be positive")
+	}
+	if opts.Length > MaxPasswordLength {
+		return "", fmt.Errorf("password length must not exceed %d", MaxPasswordLength)
 	}
 
 	charsets := make([]string, 0, 4)

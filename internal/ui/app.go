@@ -164,5 +164,14 @@ func Run() error {
 func parseLength(s string) (int, error) {
 	var n int
 	_, err := fmt.Sscanf(s, "%d", &n)
-	return n, err
+	if err != nil {
+		return 0, err
+	}
+	if n > password.MaxPasswordLength {
+		n = password.MaxPasswordLength
+	}
+	if n < 1 {
+		return 0, fmt.Errorf("length must be positive")
+	}
+	return n, nil
 }

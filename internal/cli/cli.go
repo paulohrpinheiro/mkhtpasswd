@@ -85,6 +85,9 @@ func Run(cfg Config) (Result, error) {
 	var pwd string
 
 	if cfg.Random {
+		if cfg.Length > password.MaxPasswordLength {
+			return Result{}, fmt.Errorf("password length must not exceed %d", password.MaxPasswordLength)
+		}
 		opts := password.Options{
 			Length:    cfg.Length,
 			Lowercase: cfg.Lower,

@@ -102,7 +102,7 @@ func TestGenerateRandomPasswordDefaultCharset(t *testing.T) {
 
 func TestGenerateRandomPasswordAllCharsets(t *testing.T) {
 	opts := Options{
-		Length:    1000,
+		Length:    MaxPasswordLength,
 		Lowercase: true,
 		Uppercase: true,
 		Numbers:   true,
@@ -189,5 +189,24 @@ func TestGenerateRandomPasswordNotEmpty(t *testing.T) {
 		if pwd == "" {
 			t.Fatal("password should not be empty")
 		}
+	}
+}
+
+func TestGenerateRandomPasswordMaxLength(t *testing.T) {
+	opts := Options{Length: MaxPasswordLength, Lowercase: true}
+	pwd, err := GenerateRandomPassword(opts)
+	if err != nil {
+		t.Fatalf("unexpected error for max length: %v", err)
+	}
+	if len(pwd) != MaxPasswordLength {
+		t.Fatalf("expected length %d, got %d", MaxPasswordLength, len(pwd))
+	}
+}
+
+func TestGenerateRandomPasswordExceedsMaxLength(t *testing.T) {
+	opts := Options{Length: MaxPasswordLength + 1, Lowercase: true}
+	_, err := GenerateRandomPassword(opts)
+	if err == nil {
+		t.Fatal("expected error for length exceeding max")
 	}
 }
