@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	DefaultCost = 10
-	MinCost     = 4
-	MaxCost     = 31
+	DefaultCost           = 10
+	MinCost               = 4
+	MaxCost               = 31
+	BcryptMaxPasswordBytes = 72
 )
 
 var (

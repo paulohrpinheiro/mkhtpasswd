@@ -31,5 +31,5 @@ func main() {
 }
 
 func hasCLIArgs(cfg cli.Config) bool {
-	return cfg.User != "" || cfg.Random || cfg.Password != "" || cfg.ForceGUI
+	return cfg.User != "" || cfg.Random || cfg.Password != "" || cfg.PasswordStdin || cfg.ForceGUI
 }

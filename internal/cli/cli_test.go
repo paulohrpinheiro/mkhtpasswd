@@ -189,3 +189,39 @@ func TestRunRandomExceedsMaxLength(t *testing.T) {
 		t.Fatal("expected error for length exceeding max")
 	}
 }
+
+func TestParsePasswordStdin(t *testing.T) {
+	cfg, ok := Parse([]string{"--password-stdin"})
+	if !ok {
+		t.Fatal("expected ok")
+	}
+	if !cfg.PasswordStdin {
+		t.Fatal("expected PasswordStdin true")
+	}
+}
+
+func TestRunPasswordAndStdinMutuallyExclusive(t *testing.T) {
+	cfg := Config{
+		User:          "testuser",
+		Password:      "secret",
+		PasswordStdin: true,
+		Cost:          10,
+	}
+	_, err := Run(cfg)
+	if err == nil {
+		t.Fatal("expected error for --password and --password-stdin together")
+	}
+}
+
+func TestRunRandomAndStdinMutuallyExclusive(t *testing.T) {
+	cfg := Config{
+		User:          "testuser",
+		PasswordStdin: true,
+		Random:        true,
+		Cost:          10,
+	}
+	_, err := Run(cfg)
+	if err == nil {
+		t.Fatal("expected error for --random and --password-stdin together")
+	}
+}

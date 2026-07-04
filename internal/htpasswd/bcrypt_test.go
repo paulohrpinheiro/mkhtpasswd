@@ -196,3 +196,22 @@ func TestGenerateNormalizedUnicodePassword(t *testing.T) {
 		t.Fatalf("NFD password should normalize to NFC: %v", err)
 	}
 }
+
+func TestGeneratePasswordAtBcryptLimit(t *testing.T) {
+	pwd := strings.Repeat("x", BcryptMaxPasswordBytes)
+	line, err := Generate("user", pwd, DefaultCost)
+	if err != nil {
+		t.Fatalf("password at bcrypt limit should succeed: %v", err)
+	}
+	if line == "" {
+		t.Fatal("expected non-empty output")
+	}
+}
+
+func TestGeneratePasswordAboveBcryptLimit(t *testing.T) {
+	pwd := strings.Repeat("x", BcryptMaxPasswordBytes+1)
+	_, err := Generate("user", pwd, DefaultCost)
+	if err == nil {
+		t.Fatal("password above bcrypt limit should produce error")
+	}
+}

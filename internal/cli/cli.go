@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 
 	"mkhtpasswd/internal/htpasswd"
@@ -18,18 +19,19 @@ type Result struct {
 }
 
 type Config struct {
-	ShowVersion bool
-	ForceGUI    bool
-	User        string
-	Password    string
-	Random      bool
-	Length      int
-	Lower       bool
-	Upper       bool
-	Numbers     bool
-	Symbols     bool
-	ShowPass    bool
-	Cost        int
+	ShowVersion   bool
+	ForceGUI      bool
+	User          string
+	Password      string
+	PasswordStdin bool
+	Random        bool
+	Length        int
+	Lower         bool
+	Upper         bool
+	Numbers       bool
+	Symbols       bool
+	ShowPass      bool
+	Cost          int
 }
 
 func Parse(args []string) (Config, bool) {
@@ -46,6 +48,7 @@ func Parse(args []string) (Config, bool) {
 	gui := fs.Bool("gui", false, "Force opening the GUI")
 	user := fs.String("user", "", "Username")
 	password := fs.String("password", "", "Password to encrypt")
+	passwordStdin := fs.Bool("password-stdin", false, "Read password from stdin")
 	random := fs.Bool("random", false, "Generate a random password")
 	length := fs.Int("length", 20, "Password length")
 	lower := fs.Bool("lower", true, "Use lowercase letters")
@@ -61,18 +64,19 @@ func Parse(args []string) (Config, bool) {
 	}
 
 	return Config{
-		ShowVersion: *showVersion,
-		ForceGUI:    *gui,
-		User:        *user,
-		Password:    *password,
-		Random:      *random,
-		Length:      *length,
-		Lower:       *lower,
-		Upper:       *upper,
-		Numbers:     *numbers,
-		Symbols:     *symbols,
-		ShowPass:    *showPass,
-		Cost:        *cost,
+		ShowVersion:   *showVersion,
+		ForceGUI:      *gui,
+		User:          *user,
+		Password:      *password,
+		PasswordStdin: *passwordStdin,
+		Random:        *random,
+		Length:        *length,
+		Lower:         *lower,
+		Upper:         *upper,
+		Numbers:       *numbers,
+		Symbols:       *symbols,
+		ShowPass:      *showPass,
+		Cost:          *cost,
 	}, true
 }
 
@@ -84,7 +88,24 @@ func Run(cfg Config) (Result, error) {
 
 	var pwd string
 
+	if cfg.PasswordStdin {
+		if cfg.Password != "" {
+			return Result{}, errors.New("--password and --password-stdin are mutually exclusive")
+		}
+		data, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return Result{}, fmt.Errorf("reading password from stdin: %w", err)
+		}
+		pwd = string(data)
+		if len(pwd) > 0 && pwd[len(pwd)-1] == '\n' {
+			pwd = pwd[:len(pwd)-1]
+		}
+	}
+
 	if cfg.Random {
+		if cfg.PasswordStdin {
+			return Result{}, errors.New("--random and --password-stdin are mutually exclusive")
+		}
 		if cfg.Length > password.MaxPasswordLength {
 			return Result{}, fmt.Errorf("password length must not exceed %d", password.MaxPasswordLength)
 		}
@@ -109,6 +130,11 @@ func Run(cfg Config) (Result, error) {
 	}
 	if pwd == "" {
 		return Result{}, errors.New("password is required")
+	}
+
+	if len(pwd) > htpasswd.BcryptMaxPasswordBytes {
+		fmt.Fprintf(os.Stderr, "Warning: password exceeds %d bytes; bcrypt rejects passwords longer than %d bytes\n",
+			htpasswd.BcryptMaxPasswordBytes, htpasswd.BcryptMaxPasswordBytes)
 	}
 
 	line, err := htpasswd.Generate(cfg.User, pwd, cfg.Cost)
