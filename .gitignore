@@ -4,3 +4,4 @@
 /screenshots/
 *.tar.gz
 *.zip
+ci-*.log
