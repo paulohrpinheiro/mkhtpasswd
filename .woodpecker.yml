@@ -1,3 +1,6 @@
+labels:
+  codeberg-medium: true
+
 steps:
   lint:
     image: golang:1.26
