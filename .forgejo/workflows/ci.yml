@@ -7,7 +7,7 @@ on:
 
 jobs:
   lint:
-    runs-on: docker
+    runs-on: codeberg-small
     container:
       image: golang:1.26
     steps:
@@ -15,7 +15,7 @@ jobs:
       - run: go vet ./...
 
   test:
-    runs-on: docker
+    runs-on: codeberg-small
     container:
       image: golang:1.26
     steps:
@@ -23,7 +23,7 @@ jobs:
       - run: go test -race -cover ./internal/...
 
   build:
-    runs-on: docker
+    runs-on: codeberg-small
     container:
       image: golang:1.26
     env:
@@ -34,7 +34,7 @@ jobs:
 
   release:
     needs: [lint, test, build]
-    runs-on: docker
+    runs-on: codeberg-medium
     container:
       image: golang:1.26
     if: startsWith(github.ref, 'refs/tags/')
