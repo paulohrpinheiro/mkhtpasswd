@@ -13,7 +13,7 @@ jobs:
     container:
       image: golang:1.26
     steps:
-      - run: apt-get update && apt-get install -y nodejs
+      - run: apt-get update && apt-get install -y nodejs libgl1-mesa-dev xorg-dev
       - uses: actions/checkout@v6
       - run: go vet ./...
 
@@ -22,7 +22,7 @@ jobs:
     container:
       image: golang:1.26
     steps:
-      - run: apt-get update && apt-get install -y nodejs
+      - run: apt-get update && apt-get install -y nodejs libgl1-mesa-dev xorg-dev
       - uses: actions/checkout@v6
       - run: go test -race -cover ./internal/...
 
